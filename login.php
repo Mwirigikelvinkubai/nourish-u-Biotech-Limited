@@ -64,14 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
       <button class="btn btn-primary w-100">Sign in</button>
     </form>
-
-    <hr>
-    <div class="small text-muted">
-      <strong>Demo logins:</strong><br>
-      admin@nourishu.co.ke / admin123<br>
-      rep@nourishu.co.ke / rep123<br>
-      finance@nourishu.co.ke / finance123
-    </div>
   </div>
 </div>
 
