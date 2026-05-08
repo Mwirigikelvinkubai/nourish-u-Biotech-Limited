@@ -1,0 +1,170 @@
+/* Nourish U Biotech – brand theme on top of Bootstrap 5
+   Brand colours pulled from the official logo:
+     teal/cyan  #3DC9D9  (primary)
+     deep blue  #2A8FA8  (primary darker)
+     purple     #594396  (secondary / gradient end)
+*/
+
+:root {
+  --nu-primary:    #2a8fa8;
+  --nu-primary-d:  #1e6e84;
+  --nu-cyan:       #3dc9d9;
+  --nu-purple:     #594396;
+  --nu-purple-d:   #3f2f6c;
+  --nu-accent:     #f4a300;
+  --nu-bg:         #f6f8f7;
+  --nu-text:       #1d2b27;
+  --nu-muted:      #6b7572;
+  --nu-card:       #ffffff;
+  --nu-border:     #e3e8e6;
+  --nu-grad:       linear-gradient(135deg, var(--nu-cyan) 0%, var(--nu-purple) 100%);
+}
+
+body {
+  background: var(--nu-bg);
+  color: var(--nu-text);
+  font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+}
+
+/* Top navbar */
+.navbar-nu {
+  background: var(--nu-grad);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.navbar-nu .navbar-brand,
+.navbar-nu .nav-link,
+.navbar-nu .navbar-text { color: #ffffff !important; }
+.navbar-nu .nav-link:hover { opacity: .85; }
+.navbar-nu .navbar-brand img { height: 36px; vertical-align: middle; margin-right: .5rem; }
+.navbar-nu .navbar-brand .brand-name { font-weight: 700; letter-spacing: .02em; }
+.navbar-nu .navbar-brand .brand-tag  { font-size: .68rem; opacity: .85; margin-left:.35rem; font-weight: 400; }
+
+/* Buttons */
+.btn-primary {
+  background: var(--nu-primary);
+  border-color: var(--nu-primary);
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--nu-primary-d);
+  border-color: var(--nu-primary-d);
+}
+.btn-purple {
+  background: var(--nu-purple);
+  border-color: var(--nu-purple);
+  color: #fff;
+}
+.btn-purple:hover { background: var(--nu-purple-d); border-color: var(--nu-purple-d); color: #fff; }
+
+a { color: var(--nu-primary); }
+a:hover { color: var(--nu-primary-d); }
+
+.text-primary { color: var(--nu-primary) !important; }
+.bg-primary   { background-color: var(--nu-primary) !important; }
+.bg-grad      { background: var(--nu-grad); color: #fff; }
+
+/* Sidebar */
+.sidebar {
+  min-height: calc(100vh - 56px);
+  background: #fff;
+  border-right: 1px solid var(--nu-border);
+  padding-top: 1rem;
+}
+.sidebar .nav-link {
+  color: var(--nu-text);
+  padding: .55rem 1rem;
+  border-left: 3px solid transparent;
+  border-radius: 0;
+}
+.sidebar .nav-link:hover {
+  background: #ecfafd;
+  color: var(--nu-primary-d);
+}
+.sidebar .nav-link.active {
+  background: #defbff;
+  color: var(--nu-primary-d);
+  border-left-color: var(--nu-cyan);
+  font-weight: 600;
+}
+.sidebar .heading {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--nu-muted);
+  padding: 1rem 1rem .25rem;
+}
+
+/* Cards / metric tiles */
+.card { border: 1px solid var(--nu-border); border-radius: 12px; }
+.card .card-header {
+  background: #fff;
+  border-bottom: 1px solid var(--nu-border);
+  font-weight: 600;
+}
+.metric {
+  background: #fff;
+  border: 1px solid var(--nu-border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+}
+.metric h6 { color: var(--nu-muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 .35rem; }
+.metric .v { font-size: 1.55rem; font-weight: 700; color: var(--nu-primary-d); }
+.metric .sub { font-size: .82rem; color: var(--nu-muted); }
+
+/* Badges */
+.badge-soft     { background:#defbff; color:var(--nu-primary-d); font-weight:500; }
+.badge-warning  { background:#fff4dd; color:#8a5a00; }
+.badge-danger   { background:#fde2e1; color:#a01911; }
+.badge-info     { background:#e1eefb; color:#0c4a8a; }
+.badge-secondary{ background:#eceff0; color:#3b4543; }
+.badge-purple   { background:#ece6f7; color:var(--nu-purple-d); }
+
+table.table-clean th { font-size: .8rem; color: var(--nu-muted); text-transform: uppercase; letter-spacing: .04em; }
+table.table-clean td { vertical-align: middle; }
+
+#map { height: 320px; border-radius: 10px; }
+
+/* Print / invoice */
+.print-only { display: none; }
+@media print {
+  .no-print, .navbar, .sidebar { display: none !important; }
+  .print-only { display: block; }
+  body { background: #fff; }
+}
+
+/* Login splash */
+.nu-splash {
+  background: var(--nu-grad);
+  min-height: 100vh;
+}
+.nu-splash .brand img { max-width: 240px; filter: drop-shadow(0 4px 12px rgba(0,0,0,.25)); }
+.nu-splash .brand h1  { color:#fff; font-weight: 700; font-size: 1.8rem; margin: .9rem 0 .15rem; letter-spacing: .02em; }
+.nu-splash .brand .tag{ color:#e7feff; font-size:.85rem; letter-spacing:.18em; text-transform:uppercase; }
+
+.login-card { max-width: 440px; margin: 6vh auto 4vh; border-radius: 14px; }
+
+/* Printable invoice / KYC */
+.printable {
+  max-width: 820px;
+  margin: 24px auto;
+  padding: 32px 36px;
+  background: #fff;
+  border: 1px solid var(--nu-border);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+}
+.printable .lh-bar {
+  height: 6px;
+  background: var(--nu-grad);
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+.printable .lh-foot {
+  border-top: 2px solid var(--nu-cyan);
+  margin-top: 26px;
+  padding-top: 12px;
+  font-size: .75rem;
+  color: var(--nu-muted);
+  line-height: 1.45;
+}
+.printable .lh-foot strong { color: var(--nu-purple); }
+@media print { .printable { box-shadow: none; border: none; padding: 0; max-width: 100%; } }

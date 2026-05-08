@@ -1,0 +1,5 @@
+# Block PHP execution in user-uploaded files
+<FilesMatch "\.(php|phtml|phar|inc|html?)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes

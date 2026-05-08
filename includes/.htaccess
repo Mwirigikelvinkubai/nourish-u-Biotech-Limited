@@ -1,0 +1,2 @@
+# Deny direct web access to source/config/data
+Require all denied

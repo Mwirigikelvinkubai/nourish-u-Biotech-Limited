@@ -1,0 +1,15 @@
+DirectoryIndex index.php
+
+# Pretty error pages – optional
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # If request is for a real file or directory, serve it
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+</IfModule>
+
+# Block access to dotfiles
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
