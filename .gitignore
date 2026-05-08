@@ -1,0 +1,77 @@
+# ---------------------------------------------------------------
+#  Nourish U Biotech – Med Distribution
+#  Files / folders that should never be committed to git
+# ---------------------------------------------------------------
+
+# --- secrets / live credentials -------------------------------
+# db.php contains the production MySQL user/password.
+# Commit only the .example template; copy it locally to db.php.
+config/db.php
+.env
+.env.*
+!.env.example
+
+# --- runtime data --------------------------------------------
+# User-uploaded KYC documents, rep photos, etc.
+uploads/*
+!uploads/.gitkeep
+!uploads/.htaccess
+
+# Generated / cached files
+*.log
+*.cache
+storage/
+tmp/
+cache/
+
+# --- editor / IDE --------------------------------------------
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+.netrwhist
+*.sublime-project
+*.sublime-workspace
+
+# --- OS junk -------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# --- Composer / Node (in case you add them later) -----------
+/vendor/
+composer.lock
+node_modules/
+package-lock.json
+yarn.lock
+
+# --- backup files --------------------------------------------
+*.bak
+*.bak.*
+*.orig
+*.rej
+*.old
+
+# --- database dumps ------------------------------------------
+# (Schema / seed are tracked. Operational dumps are not.)
+*.dump
+*.sqlite
+*.sqlite3
+backup_*.sql
+dump_*.sql
+
+# --- session files (local PHP) -------------------------------
+sess_*
+
+# --- misc ----------------------------------------------------
+error_log
+php_error_log
+xdebug.log
