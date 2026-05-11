@@ -8,7 +8,8 @@ $status = (string)get('status','');
 $from   = (string)get('from','');
 $to     = (string)get('to','');
 
-$where = []; $args = [];
+$showArchived = get('show') === 'archived';
+$where = [$showArchived ? 's.deleted_at IS NOT NULL' : 's.deleted_at IS NULL']; $args = [];
 if ($mine)        { $where[]='s.rep_id = ?';        $args[]=$u['id']; }
 if ($status!=='') { $where[]='s.payment_status = ?'; $args[]=$status; }
 if ($from)        { $where[]='s.sale_date >= ?';    $args[]=$from; }
@@ -18,7 +19,7 @@ $sql = "SELECT s.*, c.name AS client, u.name AS rep
           FROM sales s
           JOIN clients c ON c.id = s.client_id
           JOIN users u ON u.id = s.rep_id";
-if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
+$sql .= ' WHERE ' . implode(' AND ', $where);
 $sql .= ' ORDER BY s.sale_date DESC, s.id DESC LIMIT 500';
 
 $stmt = $pdo->prepare($sql); $stmt->execute($args);
@@ -31,8 +32,17 @@ $page_title = 'Sales & Invoices';
 require __DIR__ . '/../includes/header.php';
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h3 class="mb-0">Sales &amp; Invoices</h3>
-  <a class="btn btn-primary" href="<?= url('sales/add.php') ?>"><i class="bi bi-plus"></i> New sale</a>
+  <h3 class="mb-0">Sales &amp; Invoices
+    <?php if ($showArchived): ?><span class="badge badge-secondary">Archived</span><?php endif; ?>
+  </h3>
+  <div>
+    <?php if ($showArchived): ?>
+      <a class="btn btn-outline-secondary" href="<?= url('sales/index.php') ?>"><i class="bi bi-arrow-left"></i> Active</a>
+    <?php else: ?>
+      <a class="btn btn-outline-secondary" href="<?= url('sales/index.php?show=archived') ?>"><i class="bi bi-archive"></i> Archived</a>
+      <a class="btn btn-primary" href="<?= url('sales/add.php') ?>"><i class="bi bi-plus"></i> New sale</a>
+    <?php endif; ?>
+  </div>
 </div>
 
 <form class="row g-2 mb-3" method="get">

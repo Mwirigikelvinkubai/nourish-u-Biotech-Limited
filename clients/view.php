@@ -18,6 +18,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $op = post('op');
 
+    if ($op === 'soft_delete' && $u['role'] === 'admin') {
+        if (sd_soft_delete($pdo, 'clients', $id, (string)post('reason',''))) {
+            flash('success','Client archived.');
+            redirect(url('clients/index.php'));
+        }
+        flash('danger','Could not delete.');
+        redirect(url('clients/view.php?id=' . $id));
+    }
+    if ($op === 'restore' && $u['role'] === 'admin') {
+        sd_restore($pdo, 'clients', $id);
+        flash('success','Client restored.');
+        redirect(url('clients/view.php?id=' . $id));
+    }
+
+
     if ($op === 'upload' && !empty($_FILES['doc']['name'])) {
         $type = clean(post('doc_type')) ?: 'Document';
         $f = $_FILES['doc'];
@@ -85,6 +100,15 @@ require __DIR__ . '/../includes/header.php';
       <i class="bi bi-file-earmark-pdf"></i> Account Opening Form</a>
     <a class="btn btn-primary" href="<?= url('sales/add.php?client_id=' . $id) ?>"><i class="bi bi-receipt"></i> New sale</a>
     <a class="btn btn-outline-secondary" href="<?= url('samples/add.php?client_id=' . $id) ?>"><i class="bi bi-box-seam"></i> Schedule sample drop</a>
+    <?php if ($u['role']==='admin' && empty($c['deleted_at'])): ?>
+      <button class="btn btn-outline-danger" onclick="sdConfirm(<?= (int)$c['id'] ?>)"><i class="bi bi-trash"></i> Delete</button>
+    <?php elseif ($u['role']==='admin' && !empty($c['deleted_at'])): ?>
+      <form method="post" class="d-inline" onsubmit="return confirm('Restore this client?');">
+        <?= csrf_field() ?>
+        <input type="hidden" name="op" value="restore">
+        <button class="btn btn-outline-success"><i class="bi bi-arrow-counterclockwise"></i> Restore</button>
+      </form>
+    <?php endif; ?>
   </div>
 </div>
 
@@ -262,4 +286,5 @@ require __DIR__ . '/../includes/header.php';
 </script>
 <?php endif; ?>
 
+<?= sd_modal_html() ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

@@ -20,6 +20,24 @@ $items->execute([$id]); $items = $items->fetchAll();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $op = post('op');
+    if ($op === 'soft_delete') {
+        // Rep may delete own sale; admin/accountant any sale
+        if ($u['role'] === 'rep' && (int)$s['rep_id'] !== (int)$u['id']) {
+            flash('danger','Not allowed.'); redirect(url('sales/view.php?id=' . $id));
+        }
+        if (sd_soft_delete($pdo, 'sales', $id, (string)post('reason',''))) {
+            flash('success','Sale archived.');
+            redirect(url('sales/index.php'));
+        }
+        flash('danger','Could not delete.');
+        redirect(url('sales/view.php?id=' . $id));
+    }
+    if ($op === 'restore' && $u['role'] === 'admin') {
+        sd_restore($pdo, 'sales', $id);
+        flash('success','Sale restored.');
+        redirect(url('sales/view.php?id=' . $id));
+    }
+
     if ($op === 'pay') {
         $add = (float)post('amount');
         $newPaid = round($s['paid_amount'] + $add, 2);
@@ -37,13 +55,25 @@ require __DIR__ . '/../includes/header.php';
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
-    <h3 class="mb-0">Invoice <?= e($s['invoice_no']) ?></h3>
+    <h3 class="mb-0">Invoice <?= e($s['invoice_no']) ?>
+      <?php if (!empty($s['deleted_at'])): ?><span class="badge badge-danger">Archived</span><?php endif; ?>
+    </h3>
     <div class="text-muted small"><?= e($s['client']) ?> · <?= e(fdate($s['sale_date'])) ?> · Rep <?= e($s['rep']) ?></div>
   </div>
   <div>
     <a class="btn btn-outline-primary" href="<?= url('sales/invoice.php?id=' . $id) ?>" target="_blank">
       <i class="bi bi-printer"></i> Print invoice
     </a>
+    <?php if (empty($s['deleted_at']) && ($u['role']!=='rep' || (int)$s['rep_id']===(int)$u['id'])): ?>
+      <button class="btn btn-outline-danger" onclick="sdConfirm(<?= (int)$s['id'] ?>)">
+        <i class="bi bi-trash"></i> Delete sale</button>
+    <?php elseif (!empty($s['deleted_at']) && $u['role']==='admin'): ?>
+      <form method="post" class="d-inline" onsubmit="return confirm('Restore this sale?');">
+        <?= csrf_field() ?>
+        <input type="hidden" name="op" value="restore">
+        <button class="btn btn-outline-success"><i class="bi bi-arrow-counterclockwise"></i> Restore</button>
+      </form>
+    <?php endif; ?>
   </div>
 </div>
 
@@ -90,4 +120,5 @@ require __DIR__ . '/../includes/header.php';
 </div>
 <?php endif; ?>
 
+<?= sd_modal_html() ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

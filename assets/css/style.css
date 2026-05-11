@@ -168,3 +168,57 @@ table.table-clean td { vertical-align: middle; }
 }
 .printable .lh-foot strong { color: var(--nu-purple); }
 @media print { .printable { box-shadow: none; border: none; padding: 0; max-width: 100%; } }
+
+/* ----- Responsive / mobile tweaks (v1.3) ----- */
+
+/* Sidebar inside offcanvas needs to fill available height & lose border */
+.offcanvas .sidebar {
+  min-height: 100%;
+  border-right: 0;
+  padding-top: .5rem;
+}
+
+/* Make sidebar still pretty inside a column at >= lg */
+@media (min-width: 992px) {
+  .sidebar { position: sticky; top: 56px; }
+}
+
+/* Smaller table cell padding on mobile */
+@media (max-width: 768px) {
+  body { font-size: .95rem; }
+  table.table-clean th,
+  table.table-clean td { padding: .45rem .4rem; font-size: .85rem; }
+  .metric .v { font-size: 1.2rem; }
+  .navbar-nu .navbar-brand img { height: 28px; }
+  .navbar-nu .brand-name { font-size: .95rem; }
+  h3 { font-size: 1.25rem; }
+  /* page headers with action buttons stack nicely */
+  .d-flex.justify-content-between.align-items-center { flex-wrap: wrap; gap: .5rem; }
+  /* slightly bigger tap targets */
+  .btn-sm { padding: .35rem .55rem; }
+  .form-control, .form-select { font-size: .95rem; }
+}
+
+/* Tiny phones */
+@media (max-width: 420px) {
+  main { padding-left: .75rem !important; padding-right: .75rem !important; }
+  .card { border-radius: 8px; }
+  .metric { padding: .8rem .9rem; }
+  .metric .v { font-size: 1.05rem; }
+  .navbar-nu .brand-name { display: none; }
+}
+
+/* Tables that may overflow on phones — already wrapped in .table-responsive,
+   but force horizontal scrolling visual cue */
+.table-responsive { -webkit-overflow-scrolling: touch; }
+.table-responsive::-webkit-scrollbar { height: 4px; }
+.table-responsive::-webkit-scrollbar-thumb { background: #c7d0d3; border-radius: 4px; }
+
+/* Map and forms safe on mobile */
+@media (max-width: 576px) {
+  #map { height: 240px; }
+  .form-label { margin-bottom: .15rem; }
+}
+
+/* Footer credit looks good on small */
+footer { padding-bottom: 1rem; }

@@ -47,6 +47,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect(url('admin/users.php'));
     }
 
+
+    if ($op === 'soft_delete') {
+        $tid = (int)post('id');
+        if ($tid === (int)current_user_id()) {
+            flash('danger','You cannot delete your own account.');
+            redirect(url('admin/users.php'));
+        }
+        if (sd_soft_delete($pdo, 'users', $tid, (string)post('reason',''))) {
+            flash('success','User archived.');
+        } else {
+            flash('danger','Could not delete.');
+        }
+        redirect(url('admin/users.php'));
+    }
+
+    if ($op === 'restore') {
+        sd_restore($pdo, 'users', (int)post('id'));
+        flash('success','User restored.');
+        redirect(url('admin/users.php?show=archived'));
+    }
+
     if ($op === 'toggle') {
         $tid = (int)post('id');
         $stmt = $pdo->prepare("UPDATE users SET status = IF(status='active','suspended','active') WHERE id=?");
@@ -105,14 +126,26 @@ if (in_array($action, ['add','edit'], true)) {
 }
 
 /* List */
+$showArchived = get('show') === 'archived';
+$where = $showArchived ? 'u.deleted_at IS NOT NULL' : 'u.deleted_at IS NULL';
 $users = $pdo->query("SELECT u.*, rp.region, rp.monthly_target
                        FROM users u
                        LEFT JOIN rep_profiles rp ON rp.user_id = u.id
+                       WHERE $where
                        ORDER BY u.role, u.name")->fetchAll();
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h3 class="mb-0">Users &amp; Reps</h3>
-  <a class="btn btn-primary" href="<?= url('admin/users.php?action=add') ?>"><i class="bi bi-person-plus"></i> New user</a>
+  <h3 class="mb-0">Users &amp; Reps
+    <?php if ($showArchived): ?><span class="badge badge-secondary">Archived</span><?php endif; ?>
+  </h3>
+  <div>
+    <?php if ($showArchived): ?>
+      <a class="btn btn-outline-secondary" href="<?= url('admin/users.php') ?>"><i class="bi bi-arrow-left"></i> Active users</a>
+    <?php else: ?>
+      <a class="btn btn-outline-secondary" href="<?= url('admin/users.php?show=archived') ?>"><i class="bi bi-archive"></i> Archived</a>
+      <a class="btn btn-primary" href="<?= url('admin/users.php?action=add') ?>"><i class="bi bi-person-plus"></i> New user</a>
+    <?php endif; ?>
+  </div>
 </div>
 
 <div class="card">
@@ -138,14 +171,25 @@ $users = $pdo->query("SELECT u.*, rp.region, rp.monthly_target
       </td>
       <td class="small text-muted"><?= e(fdate($u['last_login_at'], 'd M Y H:i')) ?></td>
       <td class="text-end">
-        <a class="btn btn-sm btn-outline-primary" href="<?= url('admin/users.php?action=edit&id=' . (int)$u['id']) ?>">
-          <i class="bi bi-pencil"></i></a>
-        <form method="post" class="d-inline" onsubmit="return confirm('Toggle status?');">
-          <?= csrf_field() ?>
-          <input type="hidden" name="op" value="toggle">
-          <input type="hidden" name="id" value="<?= (int)$u['id'] ?>">
-          <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-power"></i></button>
-        </form>
+        <?php if ($showArchived): ?>
+          <form method="post" class="d-inline" onsubmit="return confirm('Restore this user?');">
+            <?= csrf_field() ?>
+            <input type="hidden" name="op" value="restore">
+            <input type="hidden" name="id" value="<?= (int)$u['id'] ?>">
+            <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-counterclockwise"></i> Restore</button>
+          </form>
+        <?php else: ?>
+          <a class="btn btn-sm btn-outline-primary" href="<?= url('admin/users.php?action=edit&id=' . (int)$u['id']) ?>">
+            <i class="bi bi-pencil"></i></a>
+          <form method="post" class="d-inline" onsubmit="return confirm('Toggle status?');">
+            <?= csrf_field() ?>
+            <input type="hidden" name="op" value="toggle">
+            <input type="hidden" name="id" value="<?= (int)$u['id'] ?>">
+            <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-power"></i></button>
+          </form>
+          <button class="btn btn-sm btn-outline-danger" onclick="sdConfirm(<?= (int)$u['id'] ?>)">
+            <i class="bi bi-trash"></i></button>
+        <?php endif; ?>
       </td>
     </tr>
   <?php endforeach; ?>
@@ -154,4 +198,5 @@ $users = $pdo->query("SELECT u.*, rp.region, rp.monthly_target
 </div>
 </div>
 
+<?= sd_modal_html() ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

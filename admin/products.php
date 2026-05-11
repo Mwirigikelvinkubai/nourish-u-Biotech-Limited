@@ -30,19 +30,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
 
         if ($editId) {
-            $sets = implode(',', array_map(fn($k)=>"$k=?", array_keys($data)));
+            $sets = implode(',', array_map(fn($k)=>"`$k`=?", array_keys($data)));
             $args = array_values($data); $args[] = $editId;
             $pdo->prepare("UPDATE products SET $sets WHERE id=?")->execute($args);
             audit($pdo,'product.update','product',$editId);
             flash('success','Product updated.');
         } else {
-            $cols = implode(',', array_keys($data));
+            $cols = implode(',', array_map(fn($k)=>"`$k`",array_keys($data)));
             $marks= implode(',', array_fill(0, count($data), '?'));
             $pdo->prepare("INSERT INTO products ($cols) VALUES ($marks)")->execute(array_values($data));
             audit($pdo,'product.create','product',(int)$pdo->lastInsertId());
             flash('success','Product added.');
         }
         redirect(url('admin/products.php'));
+    }
+
+    if ($op === 'soft_delete') {
+        $pid = (int)post('id');
+        if (sd_soft_delete($pdo, 'products', $pid, (string)post('reason',''))) {
+            flash('success','Product archived.');
+        } else {
+            flash('danger','Could not delete.');
+        }
+        redirect(url('admin/products.php'));
+    }
+    if ($op === 'restore') {
+        sd_restore($pdo, 'products', (int)post('id'));
+        flash('success','Product restored.');
+        redirect(url('admin/products.php?show=archived'));
     }
 }
 
@@ -69,8 +84,7 @@ if (in_array($action, ['add','edit'], true)) {
         <div class="col-md-6"><label class="form-label">Name</label>
           <input class="form-control" name="name" required value="<?= e($row['name']) ?>"></div>
         <div class="col-md-3"><label class="form-label">Category</label>
-          <input class="form-control" name="category" value="<?= e($row['category']) ?>"
-                 placeholder="OTC Medicine, Supplement, Prescription…"></div>
+          <input class="form-control" name="category" value="<?= e($row['category']) ?>"></div>
         <div class="col-md-4"><label class="form-label">Manufacturer</label>
           <input class="form-control" name="manufacturer" value="<?= e($row['manufacturer']) ?>"></div>
         <div class="col-md-4"><label class="form-label">Country of origin</label>
@@ -112,11 +126,22 @@ if (in_array($action, ['add','edit'], true)) {
     exit;
 }
 
-$rows = $pdo->query("SELECT * FROM products ORDER BY status DESC, name")->fetchAll();
+$showArchived = get('show') === 'archived';
+$where = $showArchived ? 'deleted_at IS NOT NULL' : 'deleted_at IS NULL';
+$rows = $pdo->query("SELECT * FROM products WHERE $where ORDER BY status DESC, name")->fetchAll();
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h3 class="mb-0">Products</h3>
-  <a class="btn btn-primary" href="<?= url('admin/products.php?action=add') ?>"><i class="bi bi-plus"></i> New product</a>
+  <h3 class="mb-0">Products
+    <?php if ($showArchived): ?><span class="badge badge-secondary">Archived</span><?php endif; ?>
+  </h3>
+  <div>
+    <?php if ($showArchived): ?>
+      <a class="btn btn-outline-secondary" href="<?= url('admin/products.php') ?>"><i class="bi bi-arrow-left"></i> Active products</a>
+    <?php else: ?>
+      <a class="btn btn-outline-secondary" href="<?= url('admin/products.php?show=archived') ?>"><i class="bi bi-archive"></i> Archived</a>
+      <a class="btn btn-primary" href="<?= url('admin/products.php?action=add') ?>"><i class="bi bi-plus"></i> New product</a>
+    <?php endif; ?>
+  </div>
 </div>
 
 <div class="card"><div class="table-responsive">
@@ -133,23 +158,35 @@ $rows = $pdo->query("SELECT * FROM products ORDER BY status DESC, name")->fetchA
   <td class="font-monospace small"><?= e($p['sku']) ?></td>
   <td>
     <div class="fw-semibold"><?= e($p['name']) ?></div>
-    <div class="small text-muted"><?= e($p['manufacturer']) ?> · <?= e($p['country_of_origin']) ?></div>
+    <div class="small text-muted"><?= e($p['manufacturer']) ?></div>
   </td>
   <td><?= e($p['category']) ?></td>
   <td class="text-end"><?= money($p['price']) ?></td>
-  <td class="text-end <?= $low?'text-danger fw-bold':'' ?>"><?= (int)$p['stock_qty'] ?> <?= e($p['unit']) ?></td>
+  <td class="text-end <?= $low?'text-danger fw-bold':'' ?>"><?= (int)$p['stock_qty'] ?></td>
   <td class="<?= $expSoon?'text-warning':'' ?>"><?= e(fdate($p['expiry_date'])) ?></td>
   <td class="text-end"><?= e($p['base_commission_pct']) ?>%</td>
   <td><?= $p['status']==='active'
        ? '<span class="badge badge-soft">Active</span>'
        : '<span class="badge badge-secondary">Inactive</span>' ?></td>
   <td class="text-end">
-    <a class="btn btn-sm btn-outline-primary" href="<?= url('admin/products.php?action=edit&id=' . (int)$p['id']) ?>">
-      <i class="bi bi-pencil"></i></a>
+    <?php if ($showArchived): ?>
+      <form method="post" class="d-inline" onsubmit="return confirm('Restore this product?');">
+        <?= csrf_field() ?>
+        <input type="hidden" name="op" value="restore">
+        <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
+        <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-counterclockwise"></i></button>
+      </form>
+    <?php else: ?>
+      <a class="btn btn-sm btn-outline-primary" href="<?= url('admin/products.php?action=edit&id=' . (int)$p['id']) ?>">
+        <i class="bi bi-pencil"></i></a>
+      <button class="btn btn-sm btn-outline-danger" onclick="sdConfirm(<?= (int)$p['id'] ?>)">
+        <i class="bi bi-trash"></i></button>
+    <?php endif; ?>
   </td>
 </tr>
 <?php endforeach; ?>
 </tbody></table>
 </div></div>
 
+<?= sd_modal_html() ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

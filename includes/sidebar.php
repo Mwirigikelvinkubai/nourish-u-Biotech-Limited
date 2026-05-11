@@ -2,7 +2,7 @@
 $u = current_user();
 $role = $u['role'] ?? '';
 ?>
-<nav class="col-md-3 col-lg-2 d-md-block sidebar collapse no-print">
+<nav class="sidebar no-print">
   <div class="position-sticky">
     <ul class="nav flex-column">
       <li class="nav-item">
@@ -32,6 +32,12 @@ $role = $u['role'] ?? '';
           <i class="bi bi-chat-dots"></i> Feedback &amp; Complaints
         </a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link <?= active_if('/expenses/') ?>" href="<?= url('expenses/index.php') ?>">
+          <i class="bi bi-receipt-cutoff"></i> Expenses
+        </a>
+      </li>
+
 
       <?php if (in_array($role, ['admin','accountant'], true)): ?>
         <div class="heading">Catalogue &amp; Stock</div>

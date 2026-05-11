@@ -37,7 +37,10 @@ CREATE TABLE users (
     created_at    DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP
                                 ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_users_role (role)
+    INDEX idx_users_role (role),
+    deleted_at    DATETIME      NULL,
+    deleted_by    INT UNSIGNED  NULL,
+    delete_reason VARCHAR(255)  NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- -----------------------------------------------------------------------
@@ -85,7 +88,10 @@ CREATE TABLE products (
     updated_at          DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP
                                        ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_products_status (status),
-    INDEX idx_products_expiry (expiry_date)
+    INDEX idx_products_expiry (expiry_date),
+    deleted_at    DATETIME      NULL,
+    deleted_by    INT UNSIGNED  NULL,
+    delete_reason VARCHAR(255)  NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- -----------------------------------------------------------------------
@@ -144,7 +150,10 @@ CREATE TABLE clients (
     CONSTRAINT fk_clients_rep
         FOREIGN KEY (rep_id) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_clients_kyc (kyc_status),
-    INDEX idx_clients_rep (rep_id)
+    INDEX idx_clients_rep (rep_id),
+    deleted_at    DATETIME      NULL,
+    deleted_by    INT UNSIGNED  NULL,
+    delete_reason VARCHAR(255)  NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE client_documents (
@@ -185,7 +194,10 @@ CREATE TABLE sales (
     CONSTRAINT fk_sales_rep    FOREIGN KEY (rep_id)    REFERENCES users(id),
     INDEX idx_sales_date (sale_date),
     INDEX idx_sales_rep  (rep_id),
-    INDEX idx_sales_pay  (payment_status)
+    INDEX idx_sales_pay  (payment_status),
+    deleted_at    DATETIME      NULL,
+    deleted_by    INT UNSIGNED  NULL,
+    delete_reason VARCHAR(255)  NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE sale_items (
@@ -212,7 +224,11 @@ CREATE TABLE sample_drops (
     scheduled_date  DATE          NOT NULL,
     drop_date       DATE          NULL,
     pickup_date     DATE          NULL,
-    status          ENUM('scheduled','dropped','picked_up','cancelled')
+    next_pickup_date  DATE          NULL,
+    payment_collected DECIMAL(14,2) NOT NULL DEFAULT 0,
+    payment_method    VARCHAR(40)   NULL,
+    reschedule_reason VARCHAR(255)  NULL,
+    status          ENUM('scheduled','dropped','rescheduled','no_show','picked_up','cancelled')
                                   NOT NULL DEFAULT 'scheduled',
     notes           TEXT          NULL,
     created_at      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -221,7 +237,10 @@ CREATE TABLE sample_drops (
     CONSTRAINT fk_drops_client FOREIGN KEY (client_id) REFERENCES clients(id),
     CONSTRAINT fk_drops_rep    FOREIGN KEY (rep_id)    REFERENCES users(id),
     INDEX idx_drops_status (status),
-    INDEX idx_drops_sched  (scheduled_date)
+    INDEX idx_drops_sched  (scheduled_date),
+    deleted_at    DATETIME      NULL,
+    deleted_by    INT UNSIGNED  NULL,
+    delete_reason VARCHAR(255)  NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE sample_drop_items (
@@ -255,7 +274,10 @@ CREATE TABLE feedback (
     CONSTRAINT fk_feedback_rep    FOREIGN KEY (rep_id)    REFERENCES users(id),
     CONSTRAINT fk_feedback_sale   FOREIGN KEY (sale_id)   REFERENCES sales(id) ON DELETE SET NULL,
     INDEX idx_fb_status (status),
-    INDEX idx_fb_sev    (severity)
+    INDEX idx_fb_sev    (severity),
+    deleted_at    DATETIME      NULL,
+    deleted_by    INT UNSIGNED  NULL,
+    delete_reason VARCHAR(255)  NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- -----------------------------------------------------------------------

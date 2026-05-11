@@ -6,6 +6,24 @@ A complete PHP + MySQL platform for **Nourish U Biotech Limited** to manage impo
 
 ---
 
+
+
+## What's new in v1.2
+
+* **Modern split-screen login** with the Nourish U gradient and brand logo.
+* **Footer credit** &mdash; "Software by Kimiru Ventures" on every page.
+* **Soft-delete** for users, products, clients, sales, feedback and sample drops &mdash; with reason + audit. Admin can view **Archived** and restore.
+* **Sample-drop pickups** now record at the visit: cash/M-Pesa payment collected, returned units (auto-flow back to stock), and let you **reschedule** or mark **no-show** with a reason. Each drop carries a prominent *next pickup date*.
+* **Reports** expanded: top clients with balance + KYC, monthly/weekly time-trend (Chart.js bars), sample-drop conversion %, feedback severity + per-rep resolution analytics.
+
+### Upgrading from v1.0/v1.1 &mdash; run the migration
+
+```
+mysql -u root nourish_u < install/migration_v1_2.sql
+```
+
+Fresh installs already get everything via `schema.sql + seed.sql`.
+
 ## Modules
 
 1. **User Management** – Admin / Director, Medical Reps, Accountant / Finance.

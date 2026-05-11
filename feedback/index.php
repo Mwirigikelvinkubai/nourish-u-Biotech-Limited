@@ -7,7 +7,8 @@ $mine   = $u['role'] === 'rep';
 $status = (string)get('status','');
 $type   = (string)get('type','');
 
-$where = []; $args = [];
+$showArchived = get('show') === 'archived';
+$where = [$showArchived ? 'f.deleted_at IS NOT NULL' : 'f.deleted_at IS NULL']; $args = [];
 if ($mine)        { $where[] = 'f.rep_id = ?';     $args[] = $u['id']; }
 if ($status!=='') { $where[] = 'f.status = ?';     $args[] = $status; }
 if ($type!=='')   { $where[] = 'f.type = ?';       $args[] = $type; }
@@ -16,7 +17,7 @@ $sql = "SELECT f.*, c.name AS client, u.name AS rep
           FROM feedback f
           JOIN clients c ON c.id = f.client_id
           JOIN users   u ON u.id = f.rep_id";
-if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
+$sql .= ' WHERE ' . implode(' AND ', $where);
 $sql .= ' ORDER BY f.created_at DESC';
 $stmt = $pdo->prepare($sql); $stmt->execute($args);
 $rows = $stmt->fetchAll();
@@ -24,6 +25,18 @@ $rows = $stmt->fetchAll();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
     $op = post('op');
+    if ($op === 'soft_delete' && in_array($u['role'], ['admin','accountant'], true)) {
+        if (sd_soft_delete($pdo, 'feedback', (int)post('id'), (string)post('reason',''))) {
+            flash('success','Feedback archived.');
+        }
+        redirect(url('feedback/index.php'));
+    }
+    if ($op === 'restore' && $u['role'] === 'admin') {
+        sd_restore($pdo, 'feedback', (int)post('id'));
+        flash('success','Feedback restored.');
+        redirect(url('feedback/index.php?show=archived'));
+    }
+
     if ($op === 'update_status') {
         $fid = (int)post('id');
         $st  = post('status');
@@ -41,8 +54,19 @@ $page_title = 'Feedback & Complaints';
 require __DIR__ . '/../includes/header.php';
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h3 class="mb-0">Feedback &amp; Complaints</h3>
-  <a class="btn btn-primary" href="<?= url('feedback/add.php') ?>"><i class="bi bi-plus"></i> New entry</a>
+  <h3 class="mb-0">Feedback &amp; Complaints
+    <?php if ($showArchived): ?><span class="badge badge-secondary">Archived</span><?php endif; ?>
+  </h3>
+  <div>
+    <?php if ($showArchived): ?>
+      <a class="btn btn-outline-secondary" href="<?= url('feedback/index.php') ?>"><i class="bi bi-arrow-left"></i> Active</a>
+    <?php else: ?>
+      <?php if (in_array($u['role'],['admin','accountant'],true)): ?>
+        <a class="btn btn-outline-secondary" href="<?= url('feedback/index.php?show=archived') ?>"><i class="bi bi-archive"></i> Archived</a>
+      <?php endif; ?>
+      <a class="btn btn-primary" href="<?= url('feedback/add.php') ?>"><i class="bi bi-plus"></i> New entry</a>
+    <?php endif; ?>
+  </div>
 </div>
 
 <form class="row g-2 mb-3" method="get">
@@ -84,8 +108,20 @@ require __DIR__ . '/../includes/header.php';
     <span class="badge <?= $cls ?>"><?= e(ucfirst(str_replace('_',' ',$f['status']))) ?></span>
   </td>
   <td class="text-end">
-    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#fb_<?= (int)$f['id'] ?>">
-      <i class="bi bi-pencil"></i></button>
+    <?php if ($showArchived && $u['role']==='admin'): ?>
+      <form method="post" class="d-inline" onsubmit="return confirm('Restore?');">
+        <?= csrf_field() ?>
+        <input type="hidden" name="op" value="restore">
+        <input type="hidden" name="id" value="<?= (int)$f['id'] ?>">
+        <button class="btn btn-sm btn-outline-success"><i class="bi bi-arrow-counterclockwise"></i></button>
+      </form>
+    <?php else: ?>
+      <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#fb_<?= (int)$f['id'] ?>">
+        <i class="bi bi-pencil"></i></button>
+      <?php if (in_array($u['role'],['admin','accountant'],true)): ?>
+        <button class="btn btn-sm btn-outline-danger" onclick="sdConfirm(<?= (int)$f['id'] ?>)"><i class="bi bi-trash"></i></button>
+      <?php endif; ?>
+    <?php endif; ?>
   </td>
 </tr>
 <tr class="collapse" id="fb_<?= (int)$f['id'] ?>">
@@ -109,4 +145,5 @@ require __DIR__ . '/../includes/header.php';
 <?php endforeach; ?>
 </tbody></table></div></div>
 
+<?= sd_modal_html() ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

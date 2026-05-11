@@ -25,9 +25,11 @@ $proto    = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https'
 $host     = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $scriptDir= str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
 // strip module sub-path so BASE_URL always points at the project root
-$basePath = preg_replace('#/(admin|clients|sales|samples|feedback|inventory|commissions|reports|api)(/.*)?$#', '', $scriptDir);
+$basePath = preg_replace('#/(admin|clients|sales|samples|feedback|inventory|commissions|reports|expenses|api)(/.*)?$#', '', $scriptDir);
 define('BASE_URL', rtrim($proto . '://' . $host . $basePath, '/'));
 
 require_once __DIR__ . '/db.php';
 require_once ROOT_PATH . '/includes/functions.php';
 require_once ROOT_PATH . '/includes/auth.php';
+require_once ROOT_PATH . '/includes/softdelete.php';
+require_once ROOT_PATH . '/includes/migrate.php';

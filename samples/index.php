@@ -6,7 +6,8 @@ $u = current_user();
 $mine   = $u['role'] === 'rep';
 $status = (string)get('status','');
 
-$where = []; $args = [];
+$showArchived = get('show') === 'archived';
+$where = [$showArchived ? 'sd.deleted_at IS NOT NULL' : 'sd.deleted_at IS NULL']; $args = [];
 if ($mine)        { $where[] = 'sd.rep_id = ?'; $args[] = $u['id']; }
 if ($status!=='') { $where[] = 'sd.status = ?'; $args[] = $status; }
 
@@ -14,7 +15,7 @@ $sql = "SELECT sd.*, c.name AS client, u.name AS rep
           FROM sample_drops sd
           JOIN clients c ON c.id = sd.client_id
           JOIN users u ON u.id = sd.rep_id";
-if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
+$sql .= ' WHERE ' . implode(' AND ', $where);
 $sql .= ' ORDER BY sd.scheduled_date DESC, sd.id DESC';
 $stmt = $pdo->prepare($sql); $stmt->execute($args);
 $rows = $stmt->fetchAll();
@@ -31,7 +32,7 @@ require __DIR__ . '/../includes/header.php';
   <div class="col-md-3">
     <select class="form-select" name="status">
       <option value="">— Any status —</option>
-      <?php foreach (['scheduled','dropped','picked_up','cancelled'] as $s): ?>
+      <?php foreach (['scheduled','dropped','rescheduled','no_show','picked_up','cancelled'] as $s): ?>
         <option value="<?= $s ?>" <?= $status===$s?'selected':'' ?>><?= ucfirst(str_replace('_',' ',$s)) ?></option>
       <?php endforeach; ?>
     </select>
@@ -41,7 +42,7 @@ require __DIR__ . '/../includes/header.php';
 
 <div class="card"><div class="table-responsive">
 <table class="table table-clean align-middle mb-0">
-<thead><tr><th>Scheduled</th><th>Client</th><th>Rep</th><th>Drop date</th><th>Pickup date</th><th>Status</th><th></th></tr></thead>
+<thead><tr><th>Scheduled</th><th>Client</th><th>Rep</th><th>Drop date</th><th>Next pickup</th><th>Pickup date</th><th>Status</th><th></th></tr></thead>
 <tbody>
 <?php foreach ($rows as $r): ?>
   <tr>
@@ -49,6 +50,7 @@ require __DIR__ . '/../includes/header.php';
     <td><a href="<?= url('clients/view.php?id=' . (int)$r['client_id']) ?>"><?= e($r['client']) ?></a></td>
     <td><?= e($r['rep']) ?></td>
     <td><?= e(fdate($r['drop_date'])) ?></td>
+    <td><?php if (!empty($r['next_pickup_date']) && $r['status']!=='picked_up'): ?><span class="fw-semibold text-primary"><?= e(fdate($r['next_pickup_date'])) ?></span><?php else: ?>—<?php endif; ?></td>
     <td><?= e(fdate($r['pickup_date'])) ?></td>
     <td>
       <?php $cls = ['scheduled'=>'badge-info','dropped'=>'badge-warning','picked_up'=>'badge-soft','cancelled'=>'badge-secondary'][$r['status']] ?? 'badge-secondary'; ?>

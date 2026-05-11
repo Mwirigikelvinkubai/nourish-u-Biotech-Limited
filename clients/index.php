@@ -7,7 +7,8 @@ $mine = $u['role'] === 'rep';
 $kyc  = (string)get('kyc', '');
 $q    = trim((string)get('q', ''));
 
-$where = []; $args = [];
+$showArchived = get('show') === 'archived';
+$where = [$showArchived ? 'c.deleted_at IS NOT NULL' : 'c.deleted_at IS NULL']; $args = [];
 if ($mine)            { $where[] = 'c.rep_id = ?';      $args[] = $u['id']; }
 if ($kyc !== '')      { $where[] = 'c.kyc_status = ?';  $args[] = $kyc; }
 if ($q !== '')        { $where[] = '(c.name LIKE ? OR c.phone LIKE ? OR c.contact_person LIKE ?)';
@@ -15,7 +16,7 @@ if ($q !== '')        { $where[] = '(c.name LIKE ? OR c.phone LIKE ? OR c.contac
 
 $sql = "SELECT c.*, u.name AS rep_name FROM clients c
         LEFT JOIN users u ON u.id = c.rep_id";
-if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
+$sql .= ' WHERE ' . implode(' AND ', $where);
 $sql .= ' ORDER BY c.name';
 $stmt = $pdo->prepare($sql); $stmt->execute($args);
 $rows = $stmt->fetchAll();
@@ -24,8 +25,17 @@ $page_title = 'Clients';
 require __DIR__ . '/../includes/header.php';
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h3 class="mb-0">Clients</h3>
-  <a class="btn btn-primary" href="<?= url('clients/add.php') ?>"><i class="bi bi-plus"></i> New client</a>
+  <h3 class="mb-0">Clients
+    <?php if ($showArchived): ?><span class="badge badge-secondary">Archived</span><?php endif; ?>
+  </h3>
+  <div>
+    <?php if ($showArchived): ?>
+      <a class="btn btn-outline-secondary" href="<?= url('clients/index.php') ?>"><i class="bi bi-arrow-left"></i> Active</a>
+    <?php else: ?>
+      <a class="btn btn-outline-secondary" href="<?= url('clients/index.php?show=archived') ?>"><i class="bi bi-archive"></i> Archived</a>
+      <a class="btn btn-primary" href="<?= url('clients/add.php') ?>"><i class="bi bi-plus"></i> New client</a>
+    <?php endif; ?>
+  </div>
 </div>
 
 <form class="row g-2 mb-3" method="get">
