@@ -39,7 +39,7 @@ require __DIR__ . '/../includes/header.php';
 </div>
 
 <form class="row g-2 mb-3" method="get">
-  <div class="col-md-4"><input class="form-control" name="q" placeholder="Search name / phone / contact" value="<?= e($q) ?>"></div>
+  <div class="col-md-4"><input class="form-control" name="q" value="<?= e($q) ?>"></div>
   <div class="col-md-3">
     <select class="form-select" name="kyc">
       <option value="">— Any KYC status —</option>

@@ -95,8 +95,7 @@ require __DIR__ . '/../includes/header.php';
       </select></div>
 
     <div class="col-12"><label class="form-label">Explanation / description</label>
-      <textarea class="form-control" name="description" rows="3" required
-                placeholder="What did you spend on, and why?"></textarea></div>
+      <textarea class="form-control" name="description" rows="3" required></textarea></div>
 
     <div class="col-md-6"><label class="form-label">Attach receipt (PDF / JPG / PNG, max 5MB)</label>
       <input class="form-control" type="file" name="receipt" accept=".pdf,.jpg,.jpeg,.png"></div>

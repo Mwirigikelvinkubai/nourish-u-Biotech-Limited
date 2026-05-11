@@ -139,7 +139,7 @@ require __DIR__ . '/../includes/header.php';
     <div class="col-md-3"><label class="form-label">Amount paid</label>
       <input class="form-control" type="number" step="0.01" min="0" name="paid_amount" id="paid" value="0"></div>
     <div class="col-md-3"><label class="form-label">Payment method</label>
-      <input class="form-control" name="payment_method" placeholder="M-Pesa, Bank, Cash…"></div>
+      <input class="form-control" name="payment_method"></div>
     <div class="col-md-3"><label class="form-label">Status</label>
       <select class="form-select" name="payment_status">
         <option value="unpaid">Unpaid</option>

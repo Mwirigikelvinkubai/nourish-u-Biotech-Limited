@@ -54,8 +54,8 @@ require __DIR__ . '/../includes/header.php';
       <?php endforeach; ?>
     </select>
   </div>
-  <div class="col-md-2"><input class="form-control" type="date" name="from" value="<?= e($from) ?>" placeholder="From"></div>
-  <div class="col-md-2"><input class="form-control" type="date" name="to"   value="<?= e($to)   ?>" placeholder="To"></div>
+  <div class="col-md-2"><input class="form-control" type="date" name="from" value="<?= e($from) ?>"></div>
+  <div class="col-md-2"><input class="form-control" type="date" name="to"   value="<?= e($to)   ?>"></div>
   <div class="col-md-2"><button class="btn btn-outline-primary w-100"><i class="bi bi-search"></i> Filter</button></div>
 </form>
 

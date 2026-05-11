@@ -65,7 +65,7 @@ require __DIR__ . '/../includes/header.php';
         <option value="critical">Critical</option>
       </select></div>
     <div class="col-md-3"><label class="form-label">Linked invoice (optional)</label>
-      <input class="form-control" name="sale_id" placeholder="Sale ID if known"></div>
+      <input class="form-control" name="sale_id"></div>
     <div class="col-12"><label class="form-label">Message *</label>
       <textarea class="form-control" name="message" rows="4" required></textarea></div>
   </div>

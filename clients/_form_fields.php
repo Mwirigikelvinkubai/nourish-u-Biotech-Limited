@@ -48,14 +48,13 @@ $u    = current_user();
   <div class="col-md-6"><label class="form-label">Physical address</label>
     <input class="form-control" name="address" value="<?= e($row['address']) ?>"></div>
   <div class="col-md-6"><label class="form-label">Postal address</label>
-    <input class="form-control" name="postal_address" value="<?= e($row['postal_address']) ?>"
-           placeholder="P.O. Box 123 – 00100, Nairobi"></div>
+    <input class="form-control" name="postal_address" value="<?= e($row['postal_address']) ?>"></div>
 </div>
 
 <h6 class="text-muted text-uppercase small mt-4 mb-2">GPS location</h6>
 <div class="row g-2 mb-2">
-  <div class="col-md-3"><input class="form-control" id="lat" name="lat" placeholder="Latitude"  value="<?= e($row['lat']) ?>"></div>
-  <div class="col-md-3"><input class="form-control" id="lng" name="lng" placeholder="Longitude" value="<?= e($row['lng']) ?>"></div>
+  <div class="col-md-3"><input class="form-control" id="lat" name="lat"  value="<?= e($row['lat']) ?>"></div>
+  <div class="col-md-3"><input class="form-control" id="lng" name="lng" value="<?= e($row['lng']) ?>"></div>
   <div class="col-md-3"><button type="button" class="btn btn-outline-primary w-100" onclick="useMyLocation()">
       <i class="bi bi-geo-alt"></i> Use my location</button></div>
   <div class="col-12 small text-muted">Click anywhere on the map to drop a pin, or drag the existing one.</div>
@@ -65,7 +64,7 @@ $u    = current_user();
 <h6 class="text-muted text-uppercase small mt-2 mb-2">Directors / Partners / Owners</h6>
 <div class="row g-3">
   <div class="col-12"><label class="form-label">List the directors / partners / individuals (one name per line)</label>
-    <textarea class="form-control" name="directors" rows="3" placeholder="Jane Doe&#10;John Smith"><?= e($row['directors']) ?></textarea></div>
+    <textarea class="form-control" name="directors" rows="3"><?= e($row['directors']) ?></textarea></div>
 </div>
 
 <h6 class="text-muted text-uppercase small mt-4 mb-2">Accountant</h6>
@@ -86,8 +85,7 @@ $u    = current_user();
     <input class="form-control" type="number" step="0.01" min="0" name="credit_limit" value="<?= e($row['credit_limit']) ?>"></div>
 
   <div class="col-md-6"><label class="form-label">Payment terms</label>
-    <input class="form-control" name="payment_terms" value="<?= e($row['payment_terms']) ?>"
-           placeholder="e.g. 30 days from invoice"></div>
+    <input class="form-control" name="payment_terms" value="<?= e($row['payment_terms']) ?>"></div>
   <div class="col-md-3"><label class="form-label">Credit period (days)</label>
     <input class="form-control" type="number" min="0" name="credit_period_days" value="<?= e($row['credit_period_days']) ?>"></div>
 </div>
@@ -95,7 +93,7 @@ $u    = current_user();
 <h6 class="text-muted text-uppercase small mt-4 mb-2">Trade references</h6>
 <div class="row g-3">
   <div class="col-12"><label class="form-label">Reference #1</label>
-    <textarea class="form-control" name="trade_ref_1" rows="2" placeholder="Name, contact, phone"><?= e($row['trade_ref_1']) ?></textarea></div>
+    <textarea class="form-control" name="trade_ref_1" rows="2"><?= e($row['trade_ref_1']) ?></textarea></div>
   <div class="col-12"><label class="form-label">Reference #2</label>
     <textarea class="form-control" name="trade_ref_2" rows="2"><?= e($row['trade_ref_2']) ?></textarea></div>
   <div class="col-12"><label class="form-label">Reference #3</label>

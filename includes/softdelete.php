@@ -90,8 +90,7 @@ function sd_modal_html(): string
           This will mark the record as deleted. It's recoverable from <em>Archived</em> by an admin.
         </p>
         <label class="form-label small">Reason for deletion <span class="text-danger">*</span></label>
-        <textarea class="form-control" name="reason" rows="3" required minlength="3"
-                  placeholder="Why are you deleting this?"></textarea>
+        <textarea class="form-control" name="reason" rows="3" required minlength="3"></textarea>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>

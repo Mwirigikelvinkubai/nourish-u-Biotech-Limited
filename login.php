@@ -126,13 +126,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="input-icon mb-3">
           <i class="bi bi-envelope"></i>
           <input class="form-control" name="email" type="email" required autofocus
-                 placeholder="you@nourishu.co.ke"
                  value="<?= e((string)post('email')) ?>">
         </div>
         <div class="input-icon mb-3">
           <i class="bi bi-lock"></i>
-          <input class="form-control" name="password" type="password" required
-                 placeholder="Password">
+          <input class="form-control" name="password" type="password" required>
         </div>
         <button class="btn-signin">Sign in</button>
       </form>

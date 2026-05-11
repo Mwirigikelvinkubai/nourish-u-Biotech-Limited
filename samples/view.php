@@ -252,7 +252,7 @@ require __DIR__ . '/../includes/header.php';
               <input class="form-control" type="date" name="next_pickup_date"
                      value="<?= e(date('Y-m-d', strtotime('+7 days'))) ?>"></div>
             <div class="col-md-6"><label class="form-label small">Reason</label>
-              <input class="form-control" name="reschedule_reason" placeholder="Client requested, stock not finished, etc."></div>
+              <input class="form-control" name="reschedule_reason"></div>
             <div class="col-md-3">
               <button class="btn btn-purple w-100" name="op" value="reschedule">
                 <i class="bi bi-arrow-repeat"></i> Reschedule</button>
@@ -263,7 +263,7 @@ require __DIR__ . '/../includes/header.php';
         <div class="tab-pane fade" id="tab-noshow">
           <div class="row g-2 align-items-end">
             <div class="col-md-9"><label class="form-label small">Note</label>
-              <input class="form-control" name="reschedule_reason" placeholder="Client unavailable, premises closed, etc."></div>
+              <input class="form-control" name="reschedule_reason"></div>
             <div class="col-md-3">
               <button class="btn btn-outline-danger w-100" name="op" value="mark_no_show"
                       onclick="return confirm('Mark this pickup as a no-show?');">

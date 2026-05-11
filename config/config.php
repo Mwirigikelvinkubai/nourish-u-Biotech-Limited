@@ -11,7 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // App identity
 define('APP_NAME',     'Nourish U Biotech');
 define('APP_TAGLINE',  'Med Distribution Management System');
-define('APP_VERSION',  '1.1.0');
+define('APP_VERSION',  '1.4.0');
 define('APP_CURRENCY', 'KES');
 define('APP_TZ',       'Africa/Nairobi');
 date_default_timezone_set(APP_TZ);
