@@ -3,23 +3,45 @@ require_once __DIR__ . '/config/config.php';
 
 if (is_logged_in()) redirect(url('dashboard.php'));
 
+/* ── Brute-force protection (session-based) ───────────────────────────── */
+$_SESSION['login_attempts'] = $_SESSION['login_attempts'] ?? 0;
+$_SESSION['login_locked_until'] = $_SESSION['login_locked_until'] ?? 0;
+
+$locked = time() < (int)$_SESSION['login_locked_until'];
+$lockSeconds = max(0, (int)$_SESSION['login_locked_until'] - time());
+
 $err = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
-    $email = trim((string)post('email'));
-    $pass  = (string)post('password');
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND (deleted_at IS NULL) LIMIT 1");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-
-    if ($user && $user['status'] === 'active' && password_verify($pass, $user['password_hash'])) {
-        login_user($user);
-        $pdo->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
-        audit($pdo, 'login', 'user', (int)$user['id']);
-        redirect(url('dashboard.php'));
+    if ($locked) {
+        $err = "Too many failed attempts. Please wait {$lockSeconds} seconds.";
     } else {
-        $err = 'Invalid email or password.';
+        $email = trim((string)post('email'));
+        $pass  = (string)post('password');
+
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND (deleted_at IS NULL) LIMIT 1");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if ($user && $user['status'] === 'active' && password_verify($pass, $user['password_hash'])) {
+            $_SESSION['login_attempts'] = 0;
+            $_SESSION['login_locked_until'] = 0;
+            login_user($user);
+            $pdo->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
+            audit($pdo, 'login', 'user', (int)$user['id']);
+            redirect(url('dashboard.php'));
+        } else {
+            $_SESSION['login_attempts']++;
+            if ((int)$_SESSION['login_attempts'] >= 5) {
+                $_SESSION['login_locked_until'] = time() + 300; // 5-minute lockout
+                $_SESSION['login_attempts'] = 0;
+                $err = 'Too many failed attempts. Account locked for 5 minutes.';
+            } else {
+                $remaining = 5 - (int)$_SESSION['login_attempts'];
+                $err = 'Invalid email or password. ' . $remaining . ' attempt(s) remaining.';
+            }
+        }
     }
 }
 ?>
@@ -121,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="alert alert-danger py-2 small"><?= e($err) ?></div>
       <?php endif; ?>
 
-      <form method="post" autocomplete="on">
+      <form method="post" autocomplete="on" <?= $locked ? 'onsubmit="return false;"' : '' ?>>
         <?= csrf_field() ?>
         <div class="input-icon mb-3">
           <i class="bi bi-envelope"></i>

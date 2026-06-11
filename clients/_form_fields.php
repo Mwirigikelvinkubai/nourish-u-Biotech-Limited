@@ -1,5 +1,7 @@
 <?php
 /** Shared form fields for clients/add.php and clients/edit.php */
+// Prevent direct web access — must be included by an authenticated page
+if (!defined('APP_NAME')) { http_response_code(403); exit; }
 $default = [
     'id'=>0,'name'=>'','type'=>'pharmacy','license_no'=>'','kra_pin'=>'','contact_person'=>'',
     'contact_role'=>'','phone'=>'','email'=>'','address'=>'','postal_address'=>'',

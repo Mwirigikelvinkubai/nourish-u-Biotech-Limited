@@ -156,7 +156,7 @@ body { background:#ECEAF5; font-family: 'Segoe UI', Arial, sans-serif;
 .co-meta  { margin-top:6px; font-size:.76rem; color:var(--muted); line-height:1.7; }
 .co-meta a { color:var(--pu3); text-decoration:none; }
 
-/* CASH INVOICE badge + meta */
+/* SALES INVOICE badge + meta */
 .inv-title-block { text-align:right; }
 .inv-badge {
   background: var(--grad);
@@ -395,7 +395,7 @@ table.itbl tfoot td {
     </div>
 
     <div class="inv-title-block">
-      <div class="inv-badge">CASH INVOICE</div>
+      <div class="inv-badge">SALES INVOICE</div>
       <table class="inv-meta-tbl">
         <tr>
           <td>Invoice No:</td>

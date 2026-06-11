@@ -56,8 +56,13 @@ $role = $u['role'] ?? '';
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link <?= active_if('/reports/') ?>" href="<?= url('reports/index.php') ?>">
-            <i class="bi bi-graph-up"></i> Reports
+          <a class="nav-link <?= active_if('/reports/index') ?>" href="<?= url('reports/index.php') ?>">
+            <i class="bi bi-graph-up"></i> Sales Reports
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link <?= active_if('/reports/contacts') ?>" href="<?= url('reports/contacts.php') ?>">
+            <i class="bi bi-person-lines-fill"></i> Client Contacts
           </a>
         </li>
       <?php endif; ?>
